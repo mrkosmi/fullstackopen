@@ -69,7 +69,7 @@ const App = () => {
       return
     }
 
-    const newPerson = { name: newName, number: newNumber , id: persons.length + 1}
+    const newPerson = { name: newName, number: newNumber }
     personService
       .create(newPerson)
       .then(returnedPerson => {
