@@ -24,6 +24,14 @@ const App = () => {
   const [notificationMessage, setNotificationMessage] = useState(null)
   const [notificationError, setNotificationError] = useState(false)
 
+  useEffect(() => {
+    if (notificationMessage) {
+      setTimeout(() => {
+        setNotificationMessage(null)
+      }, 3000)
+    }
+  }, [notificationMessage])
+
   const handleNameChange = (event) => {
     setNewName(event.target.value)
   }
@@ -48,9 +56,14 @@ const App = () => {
             setNewNumber('')
           })
           .catch(error => {
-            setNotificationError(true)
-            setNotificationMessage(`Information of ${newName} has already been removed from server`)
-            setPersons(persons.filter(person => person.id !== personToUpdate.id))
+            if (error.response.status === 404) {
+              setNotificationError(true)
+              setNotificationMessage(`Information of ${newName} has already been removed from server`)
+              setPersons(persons.filter(person => person.id !== personToUpdate.id))
+            } else {
+              setNotificationError(true)
+              setNotificationMessage(error.response.data.error)
+            }
           })
       }
       return
@@ -66,16 +79,33 @@ const App = () => {
         setNewName('')
         setNewNumber('')
       })
+      .catch(error => {
+        setNotificationError(true)
+        setNotificationMessage(error.response.data.error)
+      })
   }
 
   const removePerson = (id) => {
-    if (window.confirm(`Delete ${persons.find(person => person.id === id).name}?`)) {
-    console.log(`Deleting person with id ${id}`)
-    personService
-      .remove(id)
-      .then(() => {
-        setPersons(persons.filter(person => person.id !== id))
-      })
+    const toDelete = persons.find(person => person.id === id)
+    if (window.confirm(`Delete ${toDelete.name}?`)) {
+      console.log(`Deleting person with id ${id}`)
+      personService
+        .remove(id)
+        .then(() => {
+          setNotificationError(false)
+          setNotificationMessage(`Succesfully deleted ${toDelete.name}`)
+          setPersons(persons.filter(person => person.id !== id))
+        })
+        .catch(error => {
+          if (error.response.status === 404) {
+            setNotificationError(false)
+            setNotificationMessage(`Succesfully deleted ${toDelete.name}`)
+            setPersons(persons.filter(person => person.id !== id))
+          } else {
+            setNotificationError(true)
+            setNotificationMessage(error.response.data.error)
+          }
+        })
     }
   }
 
