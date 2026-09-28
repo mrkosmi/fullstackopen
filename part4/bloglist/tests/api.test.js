@@ -77,8 +77,22 @@ describe('post blogs', () => {
         assert.strictEqual(blogsAtEnd.length, helper.initialBlogs.length + 1)
     })
 
-    test('posting without title or url returns 400 Bad Request', async () => {
+    test('posting without title returns 400 Bad Request', async () => {
         const invalidBlog = {
+            author: "dummy",
+            url: "url",
+            likes: 42
+        }
+
+        await api
+            .post('/api/blogs')
+            .send(invalidBlog)
+            .expect(400)
+    })
+
+    test('posting without url returns 400 Bad Request', async () => {
+        const invalidBlog = {
+            title: "title",
             author: "dummy",
             likes: 42
         }
