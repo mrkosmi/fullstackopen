@@ -1,5 +1,6 @@
 const express = require('express')
 const mongoose = require('mongoose')
+const morgan = require('morgan')
 const blogsRouter = require('./controllers/blogs')
 const usersRouter = require('./controllers/users')
 const loginRouter = require('./controllers/login')
@@ -14,6 +15,7 @@ mongoose.connect(mongoUrl, { family: 4 })
     .catch(error => console.log('couldn\'t connect to db:', error.message))
 
 app.use(express.json())
+app.use(morgan('dev'))
 app.use(middleware.tokenExtractor)
 
 app.use('/api/blogs', blogsRouter)
