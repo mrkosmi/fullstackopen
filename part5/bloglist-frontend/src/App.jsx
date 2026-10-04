@@ -107,27 +107,27 @@ const App = () => {
     const blogFormRef = useRef()
     const blogsView = () => (
         <div>
-			<h2>blogs</h2>
-			<p>
-				{user.name} logged in
-				<button onClick={handleLogout}>logout</button>
-			</p>
+		    <h2>blogs</h2>
+            <p>
+                {user.name} logged in
+                <button onClick={handleLogout}>logout</button>
+            </p>
 
-			<Togglable ref={blogFormRef} buttonLabel='create new blog'>
-				<BlogForm blogCreate={blogCreate} />
-			</Togglable>
+            <Togglable ref={blogFormRef} buttonLabel='create new blog'>
+                <BlogForm blogCreate={blogCreate} />
+            </Togglable>
 
-			{blogs.map(blog =>
-				<Blog key={blog.id} blog={blog} blogLike={() => blogLike(blog)} username={user.username} blogDelete={() => blogDelete(blog)}/>
-			)}
+            {blogs.map(blog =>
+                <Blog key={blog.id} blog={blog} blogLike={() => blogLike(blog)} username={user.username} blogDelete={() => blogDelete(blog)}/>
+            )}
         </div>
     )
 
     return (
         <div>
-			<Notification notification={notification} />
-			{!user && <LoginForm login={userLogin} />}
-			{user && blogsView()}
+            <Notification notification={notification} />
+            {!user && <LoginForm login={userLogin} />}
+            {user && blogsView()}
         </div>
     )
 }
