@@ -1,16 +1,26 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
+import {
+    BrowserRouter as Router,
+    Link, Route, Routes, useMatch, useNavigate
+} from 'react-router-dom'
+
 import Blog from './components/Blog'
 import Notification from './components/Notification'
 import LoginForm from './components/LoginForm'
 import BlogForm from './components/BlogForm'
-import Togglable from './components/Togglable'
+import BlogList from './components/BlogList'
+
 import blogService from './services/blogs'
 import loginService from './services/login'
+
+
 
 const App = () => {
     const [blogs, setBlogs] = useState([])
     const [user, setUser] = useState(null)
     const [notification, setNotification] = useState(null)
+
+    const navigate = useNavigate()
 
     useEffect(() => {
         if (notification) {
@@ -56,12 +66,12 @@ const App = () => {
     const handleLogout = () => {
         window.localStorage.removeItem('loggedUser')
 
+        navigate('/')
         blogService.setToken(null)
         setUser(null)
     }
 
     const blogCreate = async blog => {
-        blogFormRef.current.toggleVisibility()
         try {
             const savedBlog = await blogService.create(blog)
             setBlogs(blogs.concat(savedBlog))
@@ -78,6 +88,7 @@ const App = () => {
                 error: true
             })
         }
+        navigate('/')
     }
 
     const blogLike = async blog => {
@@ -102,32 +113,48 @@ const App = () => {
                 error: true
             })
         }
+        navigate('/')
     }
 
-    const blogFormRef = useRef()
-    const blogsView = () => (
-        <div>
-		    <h2>blogs</h2>
-            <p>
-                {user.name} logged in
-                <button onClick={handleLogout}>logout</button>
-            </p>
+    const padding = { padding: 5 }
 
-            <Togglable ref={blogFormRef} buttonLabel='create new blog'>
-                <BlogForm blogCreate={blogCreate} />
-            </Togglable>
-
-            {blogs.map(blog =>
-                <Blog key={blog.id} blog={blog} blogLike={() => blogLike(blog)} username={user.username} blogDelete={() => blogDelete(blog)}/>
-            )}
-        </div>
-    )
+    const match = useMatch('/blogs/:id')
+    const blog = match
+        ? blogs.find(b => b.id === match.params.id)
+        : null
 
     return (
         <div>
             <Notification notification={notification} />
-            {!user && <LoginForm login={userLogin} />}
-            {user && blogsView()}
+
+            <Link to='/' style={padding}>blogs</Link>
+            {!user && <Link to='/login' style={padding}>login</Link>}
+            {user && (
+                <>
+                    <Link to='/create' style={padding}>new blog</Link>
+                    <button onClick={handleLogout} style={padding}>logout</button>
+                </>
+            )}
+
+            <Routes>
+                <Route path='/' element={
+                    <BlogList blogs={blogs} user={user} blogLike={blogLike} blogDelete={blogDelete} />
+                } />
+                <Route path='/login' element={
+                    <LoginForm login={userLogin} />
+                } />
+                <Route path='/blogs/:id' element={
+                    <Blog
+                        blog={blog}
+                        blogLike={() => blogLike(blog)}
+                        username={user?.username}
+                        blogDelete={() => blogDelete(blog)}
+                    />
+                } />
+                <Route path='/create' element={
+                    <BlogForm blogCreate={blogCreate} />
+                } />
+            </Routes>
         </div>
     )
 }
