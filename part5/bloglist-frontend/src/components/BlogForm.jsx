@@ -1,5 +1,7 @@
 import { useState } from 'react'
 
+import { TextField, Button } from '@mui/material'
+
 const BlogForm = ({ blogCreate }) => {
     const [blog, setBlog] = useState({
         title: '',
@@ -17,29 +19,37 @@ const BlogForm = ({ blogCreate }) => {
         })
     }
 
+    const pad = { marginBottom: 10 }
+
     return (
         <div>
             <h2>create new</h2>
             <form onSubmit={handleCreate}>
                 <div>
-                    <label>
-                title:
-                        <input value={blog.title} onChange={({ target }) => setBlog({ ...blog, title: target.value })} />
-                    </label>
+                    <TextField
+                        style={pad}
+                        label='title'
+                        value={blog.title}
+                        onChange={({ target }) => setBlog({ ...blog, title: target.value })}
+                    />
                 </div>
                 <div>
-                    <label>
-                author:
-                        <input value={blog.author} onChange={({ target }) => setBlog({ ...blog, author: target.value })} />
-                    </label>
+                    <TextField
+                        style={pad}
+                        label="author"
+                        value={blog.author}
+                        onChange={({ target }) => setBlog({ ...blog, author: target.value })}
+                    />
                 </div>
                 <div>
-                    <label>
-                url:
-                        <input value={blog.url} onChange={({ target }) => setBlog({ ...blog, url: target.value })} />
-                    </label>
+                    <TextField
+                        style={pad}
+                        label='url'
+                        value={blog.url}
+                        onChange={({ target }) => setBlog({ ...blog, url: target.value })}
+                    />
                 </div>
-                <button type='submit'>create</button>
+                <Button variant='contained' type='submit'>create</Button>
             </form>
         </div>
     )

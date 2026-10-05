@@ -13,7 +13,7 @@ import BlogList from './components/BlogList'
 import blogService from './services/blogs'
 import loginService from './services/login'
 
-
+import { Container, AppBar, Toolbar, Button, Typography } from '@mui/material'
 
 const App = () => {
     const [blogs, setBlogs] = useState([])
@@ -58,7 +58,7 @@ const App = () => {
         } catch (error) {
             setNotification({
                 message: error.response.data.error,
-                error: true
+                type: 'error'
             })
         }
     }
@@ -78,14 +78,12 @@ const App = () => {
 
             setNotification({
                 message: `a new blog ${savedBlog.title} by ${savedBlog.author} added`,
-                error: false
+                type: 'success'
             })
-
-            console.log(blogs)
         } catch (error) {
             setNotification({
                 message: error.response.data.error,
-                error: true
+                type: 'error'
             })
         }
         navigate('/')
@@ -98,7 +96,7 @@ const App = () => {
         } catch (error) {
             setNotification({
                 message: error.response.data.error,
-                error: true
+                type: 'error'
             })
         }
     }
@@ -110,13 +108,11 @@ const App = () => {
         } catch (error) {
             setNotification({
                 message: error.response.data.error,
-                error: true
+                type: 'error'
             })
         }
         navigate('/')
     }
-
-    const padding = { padding: 5 }
 
     const match = useMatch('/blogs/:id')
     const blog = match
@@ -124,17 +120,19 @@ const App = () => {
         : null
 
     return (
-        <div>
-            <Notification notification={notification} />
+        <Container>
+            <AppBar position='static'>
+                <Toolbar>
+                    <Typography variant='h5' component='div' sx={{ flexGrow: 1 }}>Blog App</Typography>
 
-            <Link to='/' style={padding}>blogs</Link>
-            {!user && <Link to='/login' style={padding}>login</Link>}
-            {user && (
-                <>
-                    <Link to='/create' style={padding}>new blog</Link>
-                    <button onClick={handleLogout} style={padding}>logout</button>
-                </>
-            )}
+                    <Button color='inherit' component={Link} to='/'>BLOGS</Button>
+                    { !user && <Button color='inherit' component={Link} to='/login'>LOGIN</Button> }
+                    { user && <Button color='inherit' component={Link} to='/create'>NEW BLOG</Button> }
+                    { user && <Button color='inherit' onClick={handleLogout}>LOGOUT</Button> }
+                </Toolbar>
+            </AppBar>
+
+            <Notification notification={notification} />
 
             <Routes>
                 <Route path='/' element={
@@ -155,7 +153,7 @@ const App = () => {
                     <BlogForm blogCreate={blogCreate} />
                 } />
             </Routes>
-        </div>
+        </Container>
     )
 }
 

@@ -1,22 +1,14 @@
+import { Alert } from '@mui/material'
+
 const Notification = ({ notification }) => {
     if (!notification) {
         return null
     }
 
-    const notificationStyle = {
-        color: notification.error ? 'red' : 'green',
-        background: 'lightgrey',
-        fontSize: 20,
-        borderStyle: 'solid',
-        borderRadius: 5,
-        padding: 10,
-        marginBottom: 10,
-    }
-
     return (
-        <div style={notificationStyle}>
+        <Alert severity={notification.type} sx={{ marginTop: 2 }}>
             {notification.message}
-        </div>
+        </Alert>
     )
 }
 
