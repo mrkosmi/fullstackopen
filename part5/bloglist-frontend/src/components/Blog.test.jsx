@@ -2,78 +2,56 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import Blog from './Blog'
 
+const blog = {
+    title: 'test title',
+    author: 'test author',
+    url: 'test.link',
+    likes: 67,
+    user: {
+        username: 'creator',
+        name: 'Test Creator'
+    }
+}
+
 describe('<Blog />', () => {
-    test('by default renders title and author and not URL or likes', () => {
-        const blog = {
-            title: 'test title ',
-            author: 'test author',
-            url: 'test.link',
-            likes: 67,
-            user: {
-                username: 'testuser',
-                name: 'Test User'
-            }
-        }
+    test('displays blog information and likes to unauthenticated users without buttons', () => {
+        render(<Blog blog={blog} />)
 
-        const { container } = render(
-            <Blog blog={blog} />
-        )
-
-        expect(container).toHaveTextContent('test title')
-        expect(container).toHaveTextContent('test author')
-        expect(container).not.toHaveTextContent('test.link')
-        expect(container).not.toHaveTextContent(67)
+        expect(screen.getByText('test author: test title')).toBeVisible()
+        expect(screen.getByRole('link', { name: 'test.link' })).toBeVisible()
+        expect(screen.getByText('likes 67')).toBeVisible()
+        expect(screen.getByText('Added by Test Creator')).toBeVisible()
+        expect(screen.queryByRole('button')).not.toBeInTheDocument()
     })
 
-    test('renders URL and likes when details are toggled on', async () => {
-        const blog = {
-            title: 'test title ',
-            author: 'test author',
-            url: 'test.link',
-            likes: 67,
-            user: {
-                username: 'testuser',
-                name: 'Test User'
-            }
-        }
-
-        const { container } = render(
-            <Blog blog={blog} />
+    test('shows only the like button to authenticated users who are not the creator', () => {
+        render(
+            <Blog blog={blog} username="another-user" />
         )
 
-        const user = userEvent.setup()
-        const button = screen.getByText('view')
-        await user.click(button)
-
-        expect(container).toHaveTextContent('test.link')
-        expect(container).toHaveTextContent(67)
+        expect(screen.getAllByRole('button')).toHaveLength(1)
+        expect(screen.getByRole('button', { name: 'like' })).toBeVisible()
     })
 
-    test('if the like button is clicked twice, the event handler is called twice', async () => {
-        const blog = {
-            title: 'test title ',
-            author: 'test author',
-            url: 'test.link',
-            likes: 67,
-            user: {
-                username: 'testuser',
-                name: 'Test User'
-            }
-        }
+    test('shows the like and delete buttons to the blog creator', () => {
+        render(
+            <Blog blog={blog} username="creator" />
+        )
 
+        expect(screen.getAllByRole('button')).toHaveLength(2)
+        expect(screen.getByRole('button', { name: 'like' })).toBeVisible()
+        expect(screen.getByRole('button', { name: 'remove' })).toBeVisible()
+    })
+
+    test('calls the like handler twice when the like button is clicked twice', async () => {
         const mockLikeHandler = vi.fn()
+        const user = userEvent.setup()
 
         render(
-            <Blog blog={blog} blogLike={mockLikeHandler} />
+            <Blog blog={blog} username="another-user" blogLike={mockLikeHandler} />
         )
 
-        const user = userEvent.setup()
-
-        const viewButton = screen.getByText('view')
-        await user.click(viewButton)
-
-        const likeButton = screen.getByText('like')
-        await user.dblClick(likeButton)
+        await user.dblClick(screen.getByRole('button', { name: 'like' }))
 
         expect(mockLikeHandler.mock.calls).toHaveLength(2)
     })
